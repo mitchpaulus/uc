@@ -10,6 +10,8 @@ main = do
     args <- getArgs
     let numArgs = length args
     let result = if any isHelpParameter args then helpText
+                 else if any isPrintOption args then printOptions
+                 else if any isCompleteOption args then printCompletion
                  else if numArgs /= 3 then "3 arguments required. Received " ++ (show numArgs) ++ "."
                  else do
                     let value = read (args !! 0)
@@ -19,6 +21,12 @@ main = do
                     runConversion value originalUnit newUnit
 
     putStrLn result
+
+isPrintOption :: String -> Bool
+isPrintOption option = option == "-p" || option == "--print"
+
+isCompleteOption :: String -> Bool
+isCompleteOption option = option == "-c" || option == "--complete"
 
 isHelpParameter :: String -> Bool
 isHelpParameter param = param == "-h" || param == "--help"
@@ -112,11 +120,28 @@ unitMap = Map.fromList (map unitToKey units)
 allUnits :: [String]
 allUnits = map show units
 
+-- Prints a simple list of the available units. Used
+-- to help build word list for completion
+printOptions = unlines $ map variable units
+
+-- This prints the bash command to add completions. Just
+-- need to run the command wrapped in an 'eval'
+printCompletion = "complete -W \"$(uc -p)\" uc"
+
 helpText = unlines $ [
     "uc - unit converter",
     "",
     "USAGE:",
     "  uc val fromUnit toUnit",
+    "  uc [-h | --help]",
+    "  uc [-p | --print]",
+    "  uc [-c | --completion]",
+    "",
+    "OPTIONS:",
+    "",
+    " -h, --help         Show this help and exit",
+    " -h, --print        Print list of available units",
+    " -c, --completion   Print bash completion command. Run as: eval \"$(uc -c)\"",
     "",
     "Examples:",
     "",
