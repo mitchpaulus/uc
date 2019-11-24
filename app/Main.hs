@@ -4,6 +4,7 @@ import Lib
 import System.Environment
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Text.Printf
 
 main :: IO ()
 main = do
@@ -12,6 +13,7 @@ main = do
     let result = if any isHelpParameter args then helpText
                  else if any isPrintOption args then printOptions
                  else if any isCompleteOption args then printCompletion
+                 else if any isMarkdownTableOption args then markdownTable
                  else if numArgs /= 3 then "3 arguments required. Received " ++ (show numArgs) ++ "."
                  else do
                     let value = read (args !! 0)
@@ -30,6 +32,10 @@ isCompleteOption option = option == "-c" || option == "--complete"
 
 isHelpParameter :: String -> Bool
 isHelpParameter param = param == "-h" || param == "--help"
+
+isMarkdownTableOption :: String -> Bool
+isMarkdownTableOption option = option == "-m" || option == "--markdown"
+
 
 runConversion :: Double -> String -> String -> String
 runConversion value originalUnit newUnit
@@ -64,7 +70,7 @@ instance Show Unit where show unit = (variable unit) ++ ": " ++ (name unit)
 -- Temperature: F
 
 fahrenheit = Unit "F" "Fahrenheit" 1 0 Temperature
-celcius = Unit "C" "Celcius" (9/5) 32 Temperature
+celcius = Unit "C" "Celsius" (9/5) 32 Temperature
 kelvin = Unit "K" "Kelvin" (factor celcius) ((bias celcius) - (factor celcius)*273.15) Temperature
 
 -- Area: m²
@@ -92,6 +98,7 @@ units =
     Unit "m" "Meters" 1 0 Length,
     Unit "ft" "Feet" (1/feetPerMeter) 0 Length,
 
+    -- These energy unit conversions come from the EnergyStar Portfolio Manager
     energyUnit "kBtu" "Thousand BTU" 1,
     energyUnit "MMBtu" "Million BTU" 1000,
     energyUnit "kWh" "Kilowatt hour" 3.412,
@@ -120,9 +127,21 @@ unitMap = Map.fromList (map unitToKey units)
 allUnits :: [String]
 allUnits = map show units
 
+allVariables = map variable units
+
 -- Prints a simple list of the available units. Used
 -- to help build word list for completion
+printOptions :: String
 printOptions = unlines $ map variable units
+
+maxUnitVariableNameLength :: Int
+maxUnitVariableNameLength = maximum $ map length allVariables
+
+printMarkdownRow :: Unit -> String
+printMarkdownRow unit = printf "`%s` | %s" (variable unit) (name unit)
+
+markdownTable :: String
+markdownTable = unlines $ (("Argument | Unit Name" ) : ("------|-------") : map printMarkdownRow units)
 
 -- This prints the bash command to add completions. Just
 -- need to run the command wrapped in an 'eval'
