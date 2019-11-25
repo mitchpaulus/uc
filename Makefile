@@ -1,5 +1,7 @@
 # Simple Makefile for uc
 
+.PHONY : all install build
+
 all :
 	stack build
 

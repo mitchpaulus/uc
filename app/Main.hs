@@ -58,7 +58,16 @@ incompatibleTypingsError unit1 unit2 = "Units have incompatible types. " ++ (sho
 lookupUnit :: String -> Maybe Unit
 lookupUnit unit = Map.lookup unit unitMap
 
-data UnitType = Temperature | Area | Length | Power | Energy | PowerPerArea deriving (Enum, Eq, Show)
+data UnitType =
+ Temperature |
+ Area |
+ Length |
+ Power |
+ Energy |
+ PowerPerArea |
+ VolumetricFlow |
+ Enthalpy
+ deriving (Enum, Eq, Show)
 
 data Unit = Unit { variable :: String, name :: String, factor :: Double, bias :: Double, unitType :: UnitType  }
 
@@ -78,11 +87,19 @@ kelvin = Unit "K" "Kelvin" (factor celcius) ((bias celcius) - (factor celcius)*2
 
 -- Length: m
 feetPerMeter = 10000 / 3048
+
 inchesPerFoot = 12
 
 -- PowerPerArea: W/ft²
 -- Power: W
+wattsPerBtuh = 1 / 3.41214
 -- Energy: kBtu
+
+-- VolumetricFlow: m3/s
+
+-- Enthalpy: kJ/kg
+kj_kgPerBtu_lbm = 2.326
+
 
 units :: [Unit]
 units =
@@ -116,10 +133,30 @@ units =
     energyUnit "steam_Mlb" "Million lbs of steam" 1194000,
     energyUnit "steam_kg" "kg of steam" 2.632,
 
-    energyUnit "ton-hrs" "Ton hours" 12
+    energyUnit "ton-hrs" "Ton hours" 12,
+
+    volumetricFlow "m3/s" "Cubic meters per second" 1,
+    volumetricFlow "gpm" "Gallons per minute" (1/15850.372483753),
+    volumetricFlow "cfm" "Cubic feet per minute" (1/feetPerMeter/feetPerMeter/feetPerMeter/60),
+
+    powerUnit "W" "Watt" 1,
+    powerUnit "kW" "Kilowatt" (1000),
+    powerUnit "MW" "Megawatt" (100000),
+
+    powerUnit "Btu/h" "BTU per hour" wattsPerBtuh,
+    powerUnit "kBtu/h" "Thousand BTU per hour" (wattsPerBtuh * 1000),
+    powerUnit "ton" "Tons" (wattsPerBtuh * 12000),
+    powerUnit "hp" "Horsepower" (2545 * wattsPerBtuh),
+
+    enthalpyUnit "kJ/kg" "Kilojoules per Kilogram" 1,
+    enthalpyUnit "Btu/lbm" "BTU per pound mass" kj_kgPerBtu_lbm
+
  ]
 
 energyUnit unit name factor = Unit unit name factor 0 Energy
+volumetricFlow unit name factor = Unit unit name factor 0 VolumetricFlow
+powerUnit unit name factor = Unit unit name factor 0 Power
+enthalpyUnit unit name factor = Unit unit name factor 0 Enthalpy
 
 unitToKey unit = (variable unit, unit)
 unitMap = Map.fromList (map unitToKey units)

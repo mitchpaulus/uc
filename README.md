@@ -55,4 +55,16 @@ Argument | Unit Name
 `steam_Mlb` | Million lbs of steam
 `steam_kg` | kg of steam
 `ton-hrs` | Ton hours
+`m3/s` | Cubic meters per second
+`gpm` | Gallons per minute
+`cfm` | Cubic feet per minute
+`W` | Watt
+`kw` | Kilowatt
+`MW` | Megawatt
+`Btu/h` | BTU per hour
+`kBtu/h` | Thousand BTU per hour
+`ton` | Tons
+`hp` | Horsepower
+`kJ/kg` | Kilojoules per Kilogram
+`Btu/lbm` | BTU per pound mass
 
