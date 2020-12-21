@@ -2,7 +2,9 @@
 
 `uc` is a fun little utility that lets you do a quick unit conversion
 on the fly. As an engineer, I find this quite useful to have at my
-fingertips in the terminal.
+fingertips in the terminal. (Note: this was a small project to try out Haskell - in 
+reality I typically use the [GNU `units`](https://www.gnu.org/software/units/) utility, which is
+far more expansive and battle tested than this). 
 
 The basic usage is:
 
